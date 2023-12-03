@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Page</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/projectDetail.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/common.js"></script>
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt="" /></a>
+      <a href="Project.html" class="active">Project</a>
+      <a href="AboutUs.html">About us</a>
+      <a class="Login" href="login.html">Login</a>
+
+      <a class="Administer" href="Upload.html">Add Project</a>
+      <a class="userImg">
+        <img src="../image/Avatar.png" alt="" />
+        <span>My Profile</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="main">
+      <div class="detail">
+          <div class="info">
+              <img id="my-video" />
+
+              <div class="likes" data-project-id="{{ project.id }}">
+                <div class="likes_l">
+                  <img src="../image/likes.png" alt="" id="likes" />
+                  <p>Likes: <span id="span-id"></span></p>
+                </div>
+                <div class="links">
+                  <a href="#" id="youtube-link">
+                    <img src="../image/detail/Youtube.png" alt="" />
+                  </a>
+                  <a href="#" id="github-link">
+                    <img src="../image/detail/GitHub.png" alt="" />
+                  </a>
+                </div>
+              </div>
+          </div>
+
+          <div class="project">
+              <div class="item">
+                  <span>Project Name</span>
+                  <div class="project-name" type="text"></div>
+              </div>
+              <div class="item">
+                  <span>TeamNumber</span>
+                  <div class="team-number" type="text"></div>
+              </div>
+              <div class="item">
+                  <span>TeamName</span>
+                  <div id="Name" class="Name"></div>
+              </div>
+              <div class="item">
+                  <span>Semester</span>
+                  <div class="semester" type="text"></div>
+              </div>
+              <div class="item">
+                  <span>TeamMember</span>
+                  <div id="member" class="member"></div>
+              </div>
+
+              <div class="item">
+                  <span>Coding Language</span>
+                  <div class="coding-language" type="text"></div>
+              </div>
+          </div>
+          <div class="medal-container">
+              <!-- The medal image will be displayed here for winners -->
+          </div>
+
+          
+
+          <div class="btns">
+              <a><button class="back">BACK</button></a>
+          </div>
+      </div>
+
+    
+
+    <div class="instruction">
+      <h3>ProjectOverView</h3>
+      <div class="contentInstruction"></div>
+    </div>
+
+    <div class="comments">
+      <h3>Comments</h3>
+      <div class="comment">
+        <div class="items">
+          <ul id="list"></ul>
+        </div>
+
+        <div class="comment-input">
+          <!-- <span>Comment here</span> -->
+          <input id="comment-input" type="text" placeholder="Comment here......" />
+          <img src="../image/send.svg" class="sendcomment" alt="" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const commentInput = document.querySelector(".comment-input");
+    function projectDetailCommentIsShow() {
+      commentInput.style.display = "flex";
+    }
+    // If the login succeeds, perform this method
+    projectDetailCommentIsShow();
+
+    const btnBack = document.querySelector(".btns");
+
+    btnBack.addEventListener("click", function () {
+      history.go(-1);
+    });
+  </script>
+</body>
+
+</html>
+
+
+<script src="../js/jquery.min.js"></script>
+<script>
+  // 获取URL中的参数值
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  // 获取projectID参数的值
+  //var projectID = getParameterByName("projectID");
+  var projectID = getParameterByName("projectID");
+  // token id name
+  var token = sessionStorage.getItem("token");
+  var userID = sessionStorage.getItem("userID");
+  var userName = sessionStorage.getItem("userName");
+
+  // 发请求通过id获取数据
+    $.ajax({
+        url: "https://localhost:8080/api/Projects/Project" + projectID,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            // 请求成功，获取到项目数据
+            // 赋值给input
+            var videoSrc = data.linktoYoutube;
+            var projectName = data.projectName;
+            var semester = data.semester;
+            var member = data.teamMember;
+            var name = data.teamName;
+            var codingLanguage = data.languageUsed;
+            var content = data.projectOverView;
+            var Teamnum = data.teamNumber;
+
+            $(".project-name").html(projectName);
+            $(".semester").html(semester);
+            $(".team-number").html(Teamnum);
+            $(".member").html(member);
+            $(".Name").html(name)
+            $(".coding-language").html(codingLanguage);
+            $(".contentInstruction").html(content);
+            $("#my-video").attr(
+                "src",
+                "https://localhost:8080/api/Projects/GetProjectImage/" + projectID
+            );
+            if (data.isWinner) {
+              var media = $('<img src="../image/medal.png" class="medal" />');
+              $(".info").append(media);
+            }
+
+            // links
+            $("#youtube-link").attr("href", data.linktoYoutube);
+            $("#github-link").attr("href", data.linktoGit);
+            $("#youtube-link").click(function (e) {
+                e.preventDefault();
+                if (data.linktoYoutube !== "") {
+                    window.open(data.linktoYoutube, "_blank");
+                } else {
+                    alert("Unpublished");
+                }
+            });
+            $("#github-link").click(function (e) {
+                e.preventDefault();
+                if (data.linktoGit !== "") {
+                    window.open(data.linktoGit, "_blank");
+                } else {
+                    alert("Unpublished");
+                }
+            });
+        },
+        error: function (xhr, status, error) {
+            // 请求失败
+            console.log("error");
+        }
+    });
+
+  const likes = $("#likes");
+  $("#likes").click(function () {
+    
+    
+    $.ajax({
+      url: "https://localhost:8080/api/Like/LikeProject/" + projectID,
+      type: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      success: function (data) {
+        // 点赞请求成功重新发送点赞数请求
+        var spanElement = $("#span-id");
+        // 获取原来的值
+        var oldValue = spanElement.text();
+        $.ajax({
+          url: "https://localhost:8080/api/Projects/likescount/" + projectID,
+          type: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 如果请求成功，更新页面
+            // 假设返回值中有一个 count 属性表示点赞数
+            var newValue = data;
+            // 更新 span 元素的值
+            spanElement.text(newValue);
+          },
+          error: function (xhr, status, error) {
+            // 如果请求失败，打印错误信息
+            console.log(error);
+            // 请求失败时恢复原来的值
+            spanElement.text(oldValue);
+          },
+        });
+      },
+      error: function (xhr, status, error) {
+        if (xhr.status === 400) {
+          // Display a message to the user indicating that they have already liked the project
+          alert("You have already Like Projecct");
+        } 
+        else if(xhr.status === 401){
+          alert("Please Log In");
+          window.location.href = "./login.html"
+        }
+        else {
+          console.log(error);
+        }
+      },
+    });
+  });
+
+  // 点赞数
+  var spanElement = $("#span-id");
+  // 获取原来的值
+  var oldValue = spanElement.text();
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/likescount/" + projectID,
+    type: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    success: function (data) {
+      // 如果请求成功，更新页面
+      // 假设返回值中有一个 count 属性表示点赞数
+      var newValue = data;
+      // 更新 span 元素的值
+      spanElement.text(newValue);
+    },
+    error: function (xhr, status, error) {
+      // 如果请求失败，打印错误信息
+      console.log("请求失败：" + error);
+      // 请求失败时恢复原来的值
+      spanElement.text(oldValue);
+    },
+  });
+
+  // 评论
+  // Get comments
+  $.ajax({
+    url:
+      "https://localhost:8080/api/Comment/GetProjectComments?id=" + projectID,
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      // Loop through the data and render each item as an li element
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        // Use Moment.js to format the date and time
+        var dateTimeStr = item.originalTimestamp;
+        var formattedDateTime = moment(dateTimeStr).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
+
+        var li = $("<li></li>").addClass("item");
+        var content = $("<div></div>").addClass("content")
+        var img = $("<img>").attr("src", "../image/detail/person1.png");
+        var content1 = $("<div></div>").addClass("content1")
+        var name = $("<span></span>").addClass("name").text(item.userName);
+        var time = $("<span></span>").addClass("time").text(formattedDateTime);
+        var desc = $("<p></p>").text(item.commentText);
+        content1.append(name).append(time)
+        content.append(content1).append(desc);
+        li.append(img).append(content)
+        // li.append(img).append(name).append(time).append(desc);
+        $("#list").append(li);
+      }
+    },
+    error: function (xhr, status, error) {
+      console.log("Request failed");
+    },
+  });
+
+  // Post comment
+  $(".sendcomment").click(function () {
+    var commentText = $("#comment-input").val(); // Get the value of the comment input field
+    if (commentText.trim() == "") {
+      // Check if the comment is not empty or whitespace only
+      alert("Please enter a comment.");
+      return;
+    }
+    var data = {
+      projectID: projectID,
+      commentText: commentText,
+      userID: userID,
+      userName: userName,
+    };
+    $.ajax({
+      url: "https://localhost:8080/api/Comment/WriteComment",
+      type: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      data: JSON.stringify(data),
+      success: function (data) {
+        // If the request is successful, update the page
+        // Use Moment.js to format the date and time
+        var dateTimeStr = data.originalTimestamp;
+        var formattedDateTime = moment(dateTimeStr).format(
+          "YYYY-MM-DD HH:mm:ss"
+        );
+
+
+        var li = $("<li></li>").addClass("item");
+        var content = $("<div></div>").addClass("content")
+        var img = $("<img>").attr("src", "../image/detail/person1.png");
+        var content1 = $("<div></div>").addClass("content1")
+        var name = $("<span></span>").addClass("name").text(data.userName);
+        var time = $("<span></span>").addClass("time").text(formattedDateTime);
+        var desc = $("<p></p>").text(data.commentText);
+        content1.append(name).append(time)
+        content.append(content1).append(desc);
+        li.append(img).append(content)
+
+
+        $("#comment-input").val("");
+        $("#list").append(li);
+      },
+      error: function (xhr, status, error) {
+        // If the request fails, print the error message
+        console.log("Request failed: " + error);
+        if(xhr.status === 401){
+          alert("Please Log In");
+          window.location.href = "./login.html"
+        }
+      },
+    });
+  });
+
+
+</script>

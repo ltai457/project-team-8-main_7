@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Of User</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/profile.css">
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/common.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .table-container {
+  margin-top: 60px; /* Adjust the margin-top value to create space below the header */
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th.Decline {
+    background-color: red;
+    color: white;
+  }
+  th.Approve {
+    background-color: red;
+    color: white;
+  }
+
+    button {
+      padding: 6px 12px;
+      background-color: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt=""></a>
+      <a href="Project.html">Project</a>
+      <a href="AboutUs.html">About us</a>
+      <a class="Administer" href="./static/ProfileAdmin.html">administer</a>
+      <a class="User" href="./static/ListOfUser.html">ListOfUser</a>
+      <a class="userImg" href="../static/Upload.html">
+        <span>Add Project</span>
+      </a>
+      
+     
+
+    </ul>
+  </header>
+  <div class="table-container">
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>User Name</th>
+        <th>Email</th>
+        <th>Role ID</th>
+        <th>Delete</th>
+        
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  </div>
+
+  <<script>
+    const token = sessionStorage.getItem("token");
+    $(document).ready(function() {
+      var url = 'https://localhost:8080/api/User/AllUser';
+  
+      // Fetch user data using AJAX
+      $.ajax({
+        url: url,
+        method: 'GET',
+        dataType: 'json',
+        success: function(users) {
+          
+          var tableBody = $('#userTable tbody');
+          var userId = users.userID;
+          // Loop through the users and populate the table rows
+          $.each(users, function(index, user) {
+            var row = $('<tr>');
+            row.append($('<td>').text(user.userName));
+            row.append($('<td>').text(user.email));
+            row.append($('<td>').text(user.roleID));
+  
+            // Add delete button with data attribute for user ID
+            var deleteButton = $('<button>').text('Delete');
+            deleteButton.attr('data-user-id', user.userID);
+            deleteButton.click(function() {
+            var userId = parseInt($(this).data('user-id'));
+            deleteUser(userId);
+          });
+            row.append($('<td>').append(deleteButton));
+  
+            tableBody.append(row);
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching user data:', error);
+        }
+      });
+    });
+  
+    function deleteUser(userId) {
+      
+      // Add AJAX request to delete user with the provided ID
+      var deleteUrl = 'https://localhost:8080/api/Authentication/DeleteUser/' + userId;
+      $.ajax({
+        url: deleteUrl,
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        success: function(response) {
+          console.log(response)
+          // Handle successful deletion (e.g., remove row from table)
+          console.log('User deleted successfully:', response);
+          // Remove the deleted user row from the table
+          $('#userTable tbody tr').each(function() {
+            var rowUserId = $(this).find('button').data('user-id');
+            if (rowUserId === userId) {
+              $(this).remove();
+              return false; // Exit the loop once the row is removed
+            }
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error('Error deleting user:', error);
+        }
+      });
+    }
+  </script>
+  

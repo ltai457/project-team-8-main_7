@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/signUp.css" />
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  </head>
+
+  <body>
+    <div class="sign">
+      <div class="header">
+        <a href="../homePage.html">
+          <img class="logo" src="../image/logo.png" alt=""
+        /></a>
+        <h1>Sign Up</h1>
+        <p>
+          Already have an account?
+          <a href="login.html">Login</a>
+        </p>
+      </div>
+
+      <div class="main">
+        <div class="inputs">
+          <div class="item">
+            <input class="FullName" type="text" placeholder="Full Name" />
+          </div>
+          <div class="item">
+            <input class="Email" type="text" placeholder="Email" />
+          </div>
+          <div class="item">
+            <input class="Password" type="password" placeholder="Password" />
+          </div>
+          <div class="item">
+            <select name="change" id="select">
+              <option value="2">Student</option>
+              <!-- <option value="1">Admin</option> -->
+              <option value="3">Visitor</option>
+            </select>
+          </div>
+        </div>
+        <!-- <h2 class="title">OR</h2>
+        <div class="google">
+          <img src="../image/google.png" alt="" />
+          <span>Continue with Google</span>
+        </div> -->
+      </div>
+
+      <button class="login-button">Sign Up</button>
+    </div>
+  </body>
+</html>
+<script src="../js/jquery.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const $nameInput = $(".FullName");
+    const $emailInput = $(".Email");
+    const $passwordInput = $(".Password");
+    const $userSelect = $("#select");
+    const $registerButton = $(".login-button");
+
+    $registerButton.on("click", function (event) {
+      event.preventDefault(); // 阻止表单提交默认行为
+
+      const userName = $nameInput.val();
+      const email = $emailInput.val();
+      const password = $passwordInput.val();
+      const roleID = $userSelect.val();
+
+      // 检查姓名是否为空
+      if (!userName) {
+        alert("Name cannot be empty!");
+        return;
+      }
+
+      // 检查邮箱格式是否正确
+      if (!checkEmailFormat(email)) {
+        alert("E-mail format is incorrect!");
+        return;
+      }
+
+      // 检查密码格式是否正确
+      if (!checkPasswordFormat(password)) {
+        alert("The password must contain numbers and letters and the length should be greater than or equal to 6 characters!");
+        return;
+      }
+
+      // 发送注册请求
+      $.ajax({
+        url: "https://localhost:8080/api/Authentication/Register",
+        type: "POST",
+        contentType:'application/json;charset=UTF-8',
+        data: JSON.stringify({ userName, email, password, roleID}),
+        success: function (response) {
+          // 处理响应
+          alert("Registered successfully！");
+          window.location.href = "./login.html";
+        },
+        error: function (xhr, status, error) {
+          // 处理错误
+          console.error(error);
+        },
+      });
+    });
+
+    // 检查邮箱格式是否正确
+    function checkEmailFormat(email) {
+      const regex = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+      return regex.test(email);
+    }
+
+    // 检查密码格式是否正确
+    function checkPasswordFormat(password) {
+      const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+      return regex.test(password);
+    }
+  });
+</script>

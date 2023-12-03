@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/profile.css">
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/common.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt=""></a>
+      <a href="Project.html">Project</a>
+      <a href="AboutUs.html">About us</a>
+
+      <a class="userImg">
+        <img src="../image/Avatar.png" alt="">
+        <span>My Profile</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="userinfo">
+    <div class="baseinfo">
+      <img src="../image/Avatar.png" alt="">
+      <div class="username"></div>
+      <div class="role"></div>
+      <div class="logout">Logout</div>
+
+      <div class="submit">
+        <div class="submit-item">
+          <span>Semester</span>
+          <input disabled name="semester" value="" class="semester" type="text" >
+        </div>
+        <div class="submit-item">
+          <span>Interest</span>
+          <input disabled name="Interest" value="" class="Interest" type="text" >
+        </div>
+        <div class="submit-item">
+          <span>Skills</span>
+          <input disabled name="Skills" value="" class="Skills" type="text" >
+        </div>
+        <div class="submit-item">
+          <span>Email Address</span>
+          <input disabled name="Individual resume" value="" class="Individual" type="text"
+            >
+        </div>
+
+      </div>
+      <button class="edit" onclick="edit()">Edit Profile</button>
+      <button class="save" onclick="save()">Save Profile</button>
+    </div>
+
+    <div class="main">
+      <div class="header">
+        <h3>My project</h3>
+        <p id ="Noprojectmessage">
+          Seems you don’t have an demo yet...
+          <a href="Upload.html">Upload a project</a>
+        </p>
+      </div>
+      <div class="newest">
+        <div class="newest-content">
+          <ul id="list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+<script>
+  // userName
+  const userName = sessionStorage.getItem('userName');
+  const token = sessionStorage.getItem("token");
+  const role = sessionStorage.getItem("role");
+  $('.username').html(userName)
+  $('.role').html(role)
+  // logout
+  const $logout = $(".logout");
+  $(".logout").click(function () {
+    // 清空 sessionStorage，显示登录表单
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userID");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("role");
+    location.href = "../homePage.html";
+  });
+
+
+  getData()
+  function getData() {
+    $.ajax({
+      url: 'https://localhost:8080/api/Profile',
+      type: "get",
+      dataType: "json",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      success(data) {
+        // console.log(data[data.length -1]);
+        const { semester, interest, mainCoding_Language, contact_Detail } = data[data.length -1]
+        $(".semester").val(semester)
+        $(".Interest").val(interest)
+        $(".Skills").val(mainCoding_Language)
+        $(".Individual").val(contact_Detail)
+      }
+    })
+  }
+
+  function edit() {
+    $('input').each(function() {
+      $(this).css('background-color', 'rgb(195 195 195)');
+      $(this).prop('disabled', !$(this).prop('disabled'));
+    });
+  }
+
+
+  function save() {
+    const semester = $(".semester").val();
+    const Interest = $(".Interest").val();
+    const Skills = $(".Skills").val();
+    const Individual = $(".Individual").val();
+    const data = {
+      semester: semester,
+      interest: Interest,
+      mainCoding_Language: Skills,
+      contact_Detail: Individual
+    }
+
+    $.ajax({
+      url: 'https://localhost:8080/api/Profile',
+      type: "post",
+      data: JSON.stringify(data),
+      dataType: "json",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      success(data) {
+        // console.log(data);
+        const { semester, interest, mainCoding_Language, contact_Detail } = data
+        $(".semester").val(semester)
+        $(".Interest").val(interest)
+        $(".Skills").val(mainCoding_Language)
+        $(".Individual").val(contact_Detail)
+        edit()
+        $('input').each(function() {
+          $(this).css('background-color', '#fff');
+          $(this).css('color', '#000');
+        });
+      }
+    })
+
+
+  }
+
+ 
+ 
+
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/user",
+    type: "GET",
+    headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token, // Replace `token` with your actual authentication token
+  },
+    datatype: JSON,
+    success: function(data){
+      console.log(data);
+      if (!data) {
+      // No project found for the user
+      $("#Noprojectmessage").show(); // Show the "No project" message
+      return;
+    }
+
+    $("#Noprojectmessage").hide(); // Hide the "No project" message
+      var li = $("<li></li>").addClass("item");
+      var name = $("<p></p>").text(data.projectName).addClass("project-name")
+      var img = $("<img>").attr("src","https://localhost:8080/api/Projects/GetProjectImage/" + data.projectID); 
+      //var projectoverview =  $("<p></p>").text(data.projectOverView).addClass("project-overview")
+      li.append(img).append(name)/* .append(projectoverview) */;
+      $("#list").append(li);
+      li.click({ projectID: data.projectID }, function (event) {
+                var projectID = event.data.projectID;
+                window.location.href =
+                  "./ProjectDetail.html?projectID=" + projectID;
+              });
+   
+    
+  }
+  })
+
+
+
+
+
+
+</script>

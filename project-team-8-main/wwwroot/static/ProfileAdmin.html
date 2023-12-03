@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProfileAdmin</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/profile.css">
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="../js/common.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt=""></a>
+      <a href="Project.html">Project</a>
+      <a href="AboutUs.html">About us</a>
+      <a class="Administer" href="./static/ProfileAdmin.html">administer</a>
+      <a class="userImg" href="../static/Upload.html">
+        <span>Add Project</span>
+      </a>
+      <a class="ListallUser" href="../static/ListOfUser.html">ListOfUser</a>
+      <a class="logout" href="#" style="position: absolute;">Logout</a>
+    </ul>
+  </header>
+
+  <div class="header-admin">
+    <span>Waiting List</span>
+    <button class="route-project">View All Projects</button>
+  </div>
+
+  <div class="newest">
+    <div class="newest-content" style=" padding: 0 5.2083vw;">
+      <ul id="list"></ul>
+    </div>
+  </div>
+
+
+  <!-- <div class="newest newestAdmin">
+    <div class="newest-content newest-contentAdmin ">
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/1.png" alt="">
+        <p class="comment">
+          their projects with each other and the rest of the world.
+        </p>
+      </a>
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/2.png" alt="">
+        <p class="comment">
+          Our clients - Asma Shakil and Anna Trofimove
+          - asked prospective developers to create
+        </p>
+      </a>
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/3.png" alt="">
+        <p class="comment">
+          a centralized online hub where COMPSCI 399 students could share
+        </p>
+      </a>
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/4.png" alt="">
+        <p class="comment">
+          ...................................
+          ...................................
+          ...................................
+        </p>
+      </a>
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/7.png" alt="">
+        <p class="comment">
+          ...................................
+          ...................................
+          ...................................
+        </p>
+      </a>
+      <a href="ProjectDetailAdmin.html" class="item">
+        <img src="../image/home/7.png" alt="">
+        <p class="comment">
+          ...................................
+          ...................................
+          ...................................
+        </p>
+      </a>
+
+    </div>
+
+  </div> -->
+
+
+
+
+  <script>
+    const userName = sessionStorage.getItem('userName');
+    const token = sessionStorage.getItem("token");
+    $('.username').html(userName)
+    // logout
+    const $logout = $(".logout");
+    $(".logout").click(function () {
+      // 清空 sessionStorage，显示登录表单
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("userID");
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("role");
+      location.href = "../homePage.html";
+    });
+
+
+
+    $(document).ready(function () {
+      const project = $(".route-project");
+      project.click(function () {
+        location.href = "Project.html";
+      });
+
+      function initData() {
+        $.ajax({
+          url: "https://localhost:8080/api/Projects/PendingApprovalProjects",
+          type: "GET",
+          dataType: "json",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            console.log(data);
+            $.each(data, function (i, item) {
+              var li = $("<li></li>").addClass("item");
+              var desc = $("<p></p>").text(item.projectOverView).addClass("comment");
+              const name = $("<p></p>").text(item.projectName).addClass("project-name");
+              var img = $("<img>").attr("src", "https://localhost:8080/api/Projects/GetProjectImage/" + item.projectID);
+
+              li.append(img).append(name).append(desc);
+              $("#list").append(li);
+              // Add click event handler
+              li.click({ projectID: item.projectID }, function (event) {
+                var projectID = event.data.projectID;
+                if (sessionStorage.getItem("role") === "Admin") {
+                  window.location.href =
+                    "./ProjectDetailAdminForWaitingApproval.html?projectID=" + projectID;
+                } else {
+                  window.location.href =
+                    "./ProjectDetail.html?projectID=" + projectID;
+                }
+              });
+            });
+          },
+          error: function (xhr, status, error) {
+            console.log(error);
+          }
+        });
+      }
+
+      initData();
+    });
+  </script>
+
+</body>
+
+</html>

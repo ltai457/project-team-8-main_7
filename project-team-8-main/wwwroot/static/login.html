@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/login.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+  <div class="login">
+    <div class="header">
+      <a href="../homePage.html">
+        <img class="logo" src="../image/logo.png" alt="" />
+      </a>
+      <h1>Login</h1>
+      <p>
+        Don't have an account? <a href="signUp.html">Sign Up</a>
+      </p>
+    </div>
+
+    <div class="main">
+      <div class="inputs" style="width:25%;">
+        <div class="item" style="width: 100% !important;">
+          <input class="Email" type="text" placeholder="Email" style="align-items:center;" />
+        </div>
+        <div class="item" style="width: 100% !important;">
+          <input class="Password" type="password" placeholder="Password" />
+        </div>
+        <button class="login-button">Continue</button>
+      </div>
+
+      <div>
+        <h2 class="title"><span class="or-word">OR</span></h2>
+      </div>
+      <div class="buttons" style="width:10%; height: 60px;">
+        <div
+          id="buttonDiv"
+          data-client_id="601820845331-otv1etkl5vmjdefi6uo0conhf1o9ni63.apps.googleusercontent.com"
+          data-callback="handleCredentialResponse"
+          data-native_callback="handleResponse">
+        </div>
+      </div>
+      <div style="width:15%;"></div>
+      
+    </div>
+  </div>
+
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/common.js"></script>
+  <script>
+    // Login form
+    const $emailInput = $(".Email");
+    const $passwordInput = $(".Password");
+    const $registerButton = $(".login-button");
+
+    $registerButton.on("click", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const email = $emailInput.val();
+      const password = $passwordInput.val();
+
+      // Check email format
+      if (!checkEmailFormat(email)) {
+        alert("The email is wrong!");
+        return;
+      }
+
+      // Check password format
+      if (!checkPasswordFormat(password)) {
+        alert("The password or the email is wrong!");
+        return;
+      }
+
+      // Send login request
+      $.ajax({
+        url: "https://localhost:8080/api/Authentication/Login",
+        type: "POST",
+        contentType: "application/json;charset=UTF-8",
+        data: JSON.stringify({ email, password }),
+        success: function (response) {
+          var token = response.token;
+          var userID = response.userID;
+          var userName = response.userName;
+          var role = response.role;
+
+          if (response.role == "Visitor" || response.role == "Student") {
+            window.location.href = "../homePage.html";
+          } else {
+            window.location.href = "../static/ProfileAdmin.html";
+          }
+
+          // Store information
+          sessionStorage.setItem("token", token);
+          sessionStorage.setItem("userID", userID);
+          sessionStorage.setItem("userName", userName);
+          sessionStorage.setItem("role", role);
+        },
+        error: function (xhr, status, error) {
+          // Handle error
+          if (xhr.status == 400) {
+            alert(
+              "Please check whether the email address or password is entered correctly!"
+            );
+          }
+        },
+      });
+    });
+
+    // Check email format
+    function checkEmailFormat(email) {
+      const regex = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+      return regex.test(email);
+    }
+
+    // Check password format
+    function checkPasswordFormat(password) {
+      const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+      return regex.test(password);
+    }
+
+ // Google Sign-In
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: "601820845331-otv1etkl5vmjdefi6uo0conhf1o9ni63.apps.googleusercontent.com",
+    callback: handleCredentialResponse,
+  });
+
+  google.accounts.id.renderButton(document.getElementById("buttonDiv"), {
+    theme: "outline",
+    size: "large",
+  });
+
+  google.accounts.id.prompt();
+};
+
+function handleCredentialResponse(response) {
+  console.log("Encoded JWT ID token: " + response.credential);
+
+  // Extract info from the token
+  var tokens = response.credential.split(".");
+  var payload = JSON.parse(atob(tokens[1]));
+  console.log(`user id ${payload.sub}`);
+  console.log(`user name ${payload.name}`);
+
+  // Send the Google authentication code and user information to the backend
+  var googleAuthDto = {
+    Code: response.credential,
+    UserId: payload.sub,
+    UserName: payload.name,
+  };
+
+  $.ajax({
+    url: "https://localhost:8080/api/Authentication/GoogleLogin",
+    type: "POST",
+    contentType: "application/json;charset=UTF-8",
+    data: JSON.stringify(googleAuthDto),
+    success: function (response) {
+      // Handle the authentication response from the backend
+      var token = response.token;
+      var userID = response.userID;
+      var userName = response.userName;
+      var role = response.role;
+
+      if (response.role == "Visitor" || response.role == "Student") {
+        window.location.href = "../homePage.html";
+      } else {
+        window.location.href = "../static/ProfileAdmin.html";
+      }
+
+      // Store information
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("userID", userID);
+      sessionStorage.setItem("userName", userName);
+      sessionStorage.setItem("role", role);
+    },
+    error: function (xhr, status, error) {
+      // Handle error
+      if (xhr.status == 400) {
+        alert("Invalid Google authentication token.");
+      }
+    },
+  });
+}
+
+
+
+
+
+  </script>
+</body>
+</html>

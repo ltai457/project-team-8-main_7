@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Page</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/upload.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt="" /></a>
+      <a href="Project.html">Project</a>
+      <a href="AboutUs.html">About us</a>
+      <a class="Administer" href="./static/Administer.html">Add Project</a>
+      <a class="userImg" href="../static/Profile.html">
+        <img src="../image/Avatar.png" alt="" />
+        <span>My Profile</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="main">
+    <div class="detail">
+      <form action="" id="myForm">
+        <div>
+          <label for="projectName">Project Name</label>
+          <input class="projectName" type="text" id="projectName" />
+        </div>
+
+        <div>
+          <label for="select">Semester of Enrolment</label>
+          <select name="change" id="select">
+            <option></option>
+            
+            <option value="Sem1 2021">Sem1 2019</option>
+            <option value="Sem2 2021">Sem2 2019</option>
+            <option value="Sem1 2021">Sem1 2020</option>
+            <option value="Sem2 2021">Sem2 2020</option>
+            <option value="Sem1 2021">Sem1 2021</option>
+            <option value="Sem2 2021">Sem2 2021</option>
+            <option value="Sem1 2022">Sem1 2022</option>
+            <option value="Sem2 2022">Sem2 2022</option>
+            <option value="Sem1 2023">Sem1 2023</option>
+            <option value="Sem2 2023">Sem2 2023</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="languageUsed">Coding language</label>
+          <input class="languageUsed" type="text" id="languageUsed" />
+        </div>
+
+        <div>
+          <label for="teamNumber">Team Number</label>
+          <input class="teamNumber" type="text" id="teamNumber" />
+        </div>
+
+        <div>
+          <label for="teamName">Team Name</label>
+          <input class="teamName" type="text" id="teamName" />
+        </div>
+
+        <div>
+          <label for="teamMember">Team Member</label>
+          <input class="teamMember" type="text" id="teamMember" />
+        </div>
+
+        <div>
+          <label for="linktoYoutube">Video Link</label>
+          <input class="linktoYoutube" type="text" id="linktoYoutube" />
+        </div>
+
+        <div>
+          <label for="linktoGit">GitHub Link</label>
+          <input class="linktoGit" type="text" id="linktoGit" />
+        </div>
+
+        <div>
+          <label for="ProjectOverView">Project Overview</label>
+          <textarea class="ProjectOverView" id="ProjectOverView"></textarea>
+        </div>
+
+        <div class="file">
+          <img alt="" class="avatar" />
+          Upload Your Image Here
+          <input type="file" class="file file1" accept="image/jpeg,image/png,image/gif" />
+        </div>
+      </form>
+    </div>
+
+    <button class="upload">Upload Project</button>
+  </div>
+    <script>
+      const file1 = document.querySelector(".file1");
+      // const upload = document.querySelector(".upload");
+
+      // // 图片预览功能
+      file1.addEventListener("change", function () {
+        let reads = new FileReader();
+        let f = file1.files[0];
+        reads.readAsDataURL(f);
+        reads.onload = function (e) {
+          // console.log(e);
+          let img = document.querySelector(".avatar");
+          img.style.display = "block";
+          img.src = e.target.result;
+        };
+      });
+    </script>
+  </body>
+</html>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/common.js"></script>
+<script>
+  var role = sessionStorage.getItem("role");
+  if (role == "Admin") {
+    $(".Administer").hide();
+    $(".userImg").hide();
+  }
+  // token
+  var token = sessionStorage.getItem("token");
+
+  $(".upload").click(function () {
+    // 获取表单元素的值
+    var formData = new FormData($("#myForm")[0]);
+    var projectNameValue = $(".projectName").val();
+    // var semesterValue = $(".semester").val();
+    var semesterValue = $("#select").val();
+    var languageUsedValue = $(".languageUsed").val();
+    var teamNumberValue = $(".teamNumber").val();
+    var teamNameValue = $(".teamName").val();
+    var teamMemberValue = $(".teamMember").val();
+    var linktoYoutubeValue = $(".linktoYoutube").val();
+    var linktoGitValue = $(".linktoGit").val();
+    var OverviewValue = $(".ProjectOverView").val();
+    // var descriptionValue = $(".description").val();
+    var imageFile = $(".file1")[0].files[0];
+
+    formData.append("ProjectName", projectNameValue);
+    formData.append("Semester", semesterValue);
+    formData.append("LanguageUsed", languageUsedValue);
+    formData.append("TeamNumber", teamNumberValue);
+    formData.append("LinktoYoutube", linktoYoutubeValue);
+    formData.append("LinktoGit", linktoGitValue);
+    formData.append("projectOverView", OverviewValue);
+    // formData.append("Description", descriptionValue);
+    formData.append("Img", imageFile);
+    formData.append("TeamName", teamNameValue);
+    formData.append("TeamMember", teamMemberValue);
+    $.ajax({
+      url: "https://localhost:8080/api/Projects/AddNewProjectWithImage",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "Bearer " + token); // 添加Authorization头部信息
+      },
+      success: function (data) {
+        console.log(data);
+        alert(
+          "Your project has been submitted and is pending approval from the admin."
+        );
+        for (const key of formData.keys()) {
+          formData.delete(key);
+        }
+        location.href = "./Project.html";
+      },
+      error: function (error) {
+        console.log(error);
+      },
+    });
+  });
+</script>

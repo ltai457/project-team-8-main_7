@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomePage</title>
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/homePage.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <a href="./homePage.html"><img class="logo" src="./image/logo.png" alt="" /></a>
+      <a href="./static/Project.html">Project</a>
+      <a href="./static/AboutUs.html">About us</a>
+
+      <a class="Login">Login</a>
+      <a class="Administer" href="./static/Upload.html">Add Project</a>
+      <a class="userImg">
+        <img src="./image/Avatar.png" alt="" />
+        <span>My Profile</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="girl">
+    <p>Projects in Democraft,</p>
+    <p>Realize in Industry</p>
+    <button class="btnGirl">Explore more</button>
+  </div>
+
+  <div class="main">
+    <div class="newest">
+      <div class="newest-title">
+        <span>Top 5 Popular Projects </span>
+      </div>
+      <div class="newest-content">
+        <ul id="Popularlist"></ul>
+      </div>
+    </div>
+
+    <div class="newest">
+      <div class="newest-title">
+        <span>Awarded Projects</span>
+      </div>
+      <div class="newest-content">
+        <ul id="Awardedlist"></ul>
+      </div>
+    </div>
+
+    <div class="newest">
+      <div class="newest-title">
+        <span>Top 5 Newest Project</span>
+      </div>
+      <div class="newest-content">
+        <ul id="Newestlist"></ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Copyright © Team 8</p>
+  </footer>
+</body>
+
+</html>
+<script src="./js/jquery.min.js"></script>
+<script src="./js/common.js"></script>
+<script>
+  // token
+  var token = sessionStorage.getItem("token");
+  var role = sessionStorage.getItem("role");
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/GetTop5PopularProject",
+    type: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    dataType: "json",
+    success: function (data) {
+      // 循环遍历数据，将每个数据项渲染为 li 元素
+      $.each(data, function (i, item) {
+        var li = $("<li></li>").addClass("item");
+        var img = $("<img>").attr(
+          "src",
+          "https://localhost:8080/api/Projects/GetProjectImage/" +
+          item.projectID
+        );
+        const name = $("<p></p>").text(item.projectName).addClass("project-name");
+        var desc = $("<p></p>").text(item.projectOverView).addClass("comment");
+        var likes = $(
+          '<div class="likesdiv" data-project-id="' +
+          item.projectID +
+          '">' +
+          '<img src="./image/likes.png" alt="" class="likes likes1" />' +
+          '<p>Likes: <span class="span-id"></span></p>' +
+          "</div>"
+        );
+        li.append(img).append(name).append(desc).append(likes);
+        if(item.isWinner){
+          var media = $('<img src="./image/medal.png" class="medal" />');
+          li.append(media)
+        }
+        $("#Popularlist").append(li);
+        // 添加点击事件
+        li.click({ projectID: item.projectID }, function (event) {
+          var projectID = event.data.projectID;
+          if (sessionStorage.getItem("role") === "Admin") {
+            window.location.href =
+            "./static/ProjectDetailAdmin.html?projectID=" + projectID;
+          } else {
+            window.location.href =
+            "./static/ProjectDetail.html?projectID=" + projectID;
+          }
+        });
+        // 点赞数
+        var spanElement = $(likes).find(".span-id");
+        // 点赞数
+        $.ajax({
+          url: "https://localhost:8080/api/Projects/likescount/" + item.projectID,
+          type: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 如果请求成功，更新页面
+            // 假设返回值中有一个 count 属性表示点赞数
+            var newValue = data;
+            // 更新 span 元素的值
+            spanElement.text(newValue);
+          },
+          error: function (xhr, status, error) {
+            // 如果请求失败，打印错误信息
+            console.log("请求失败：" + error);
+          },
+        });
+      });
+
+      $(".likes1").on("click", function (event) {
+        //  拿到当前点赞的元素
+        const _this = $(this).siblings('p').find('span')
+        event.stopPropagation();
+        var projectID = $(this).parent().data("project-id");
+        $.ajax({
+          url: "https://localhost:8080/api/Like/LikeProject/" + projectID,
+          type: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 点赞请求成功重新发送点赞数请求
+            var spanElement = _this;
+            // 获取原来的值
+            var oldValue = spanElement.html();
+            _this.html(parseFloat(parseInt(oldValue) + 1))
+            alert('Like success')
+          },
+          error: function (xhr, status, error) {
+        if (xhr.status === 400) {
+          // Display a message to the user indicating that they have already liked the project
+          alert("You have already Like Projecct");
+        } 
+        else if(xhr.status === 401){
+          alert("Please Log In");
+          window.location.href = "./static/login.html"
+        }
+        else {
+          console.log(error);
+        }
+      },
+        });
+      });
+    },
+    error: function (xhr, status, error) {
+      console.log("请求失败");
+    },
+  });
+
+  // Awardedlist
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/WinningProjects",
+    type: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    dataType: "json",
+    success: function (data) {
+      // 循环遍历数据，将每个数据项渲染为 li 元素
+      $.each(data, function (i, item) {
+        var li = $("<li></li>").addClass("item");
+        var img = $("<img>").attr(
+          "src",
+          "https://localhost:8080/api/Projects/GetProjectImage/" +
+          item.projectID
+        );
+        const name = $("<p></p>").text(item.projectName).addClass("project-name");
+        var desc = $("<p></p>").text(item.projectOverView).addClass("comment");
+        var likes = $(
+          '<div class="likesdiv" data-project-id="' +
+          item.projectID +
+          '">' +
+          '<img src="./image/likes.png" alt="" class="likes likes2" />' +
+          '<p>Likes: <span class="span-id span-id2"></span></p>' +
+          "</div>"
+        );
+        li.append(img).append(name).append(desc).append(likes);
+        if(item.isWinner){
+          var media = $('<img src="./image/medal.png" class="medal" />');
+          li.append(media)
+        }
+        $("#Awardedlist").append(li);
+        // 添加点击事件
+        li.click({ projectID: item.projectID }, function (event) {
+          var projectID = event.data.projectID;
+          if (sessionStorage.getItem("role") === "Admin") {
+            window.location.href =
+            "./static/ProjectDetailAdmin.html?projectID=" + projectID;
+          } else {
+            window.location.href =
+            "./static/ProjectDetail.html?projectID=" + projectID;
+          }
+        });
+        // 点赞数
+        var spanElement = $(likes).find(".span-id");
+        $.ajax({
+          url:
+            "https://localhost:8080/api/Projects/likescount/" + item.projectID,
+          type: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 如果请求成功，更新页面
+            // 假设返回值中有一个 count 属性表示点赞数
+            var newValue = data;
+            // 更新 span 元素的值
+            spanElement.text(newValue);
+          },
+          error: function (xhr, status, error) {
+            // 如果请求失败，打印错误信息
+            console.log("请求失败：" + error);
+          },
+        });
+
+
+      });
+      $(".likes2").on("click", function (event) {
+        //  拿到当前点赞的元素
+        const _this = $(this).siblings('p').find('span')
+        event.stopPropagation();
+        var projectID = $(this).parent().data("project-id");
+        $.ajax({
+          url: "https://localhost:8080/api/Like/LikeProject/" + projectID,
+          type: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 点赞请求成功重新发送点赞数请求
+            var spanElement = _this;
+            // 获取原来的值
+            var oldValue = spanElement.html();
+            _this.html(parseFloat(parseInt(oldValue) + 1))
+            alert('Like success')
+          },
+          error: function (xhr, status, error) {
+        if (xhr.status === 400) {
+          // Display a message to the user indicating that they have already liked the project
+          alert("You have already Like Projecct");
+        } 
+        else if(xhr.status === 401){
+          alert("Please Log In");
+          window.location.href = "./static/login.html"
+        }
+        else {
+          console.log(error);
+        }
+      },
+        });
+      });
+    },
+    error: function (xhr, status, error) {
+      console.log("请求失败");
+    },
+  });
+
+  // Newest Demos
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/GetTop5NewestProject",
+    type: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    dataType: "json",
+    success: function (data) {
+      // 循环遍历数据，将每个数据项渲染为 li 元素
+      $.each(data, function (i, item) {
+        var li = $("<li></li>").addClass("item");
+        var img = $("<img>").attr(
+          "src",
+          "https://localhost:8080/api/Projects/GetProjectImage/" +
+          item.projectID
+        );
+        const name = $("<p></p>").text(item.projectName).addClass("project-name");
+        var desc = $("<p></p>").text(item.projectOverView).addClass("comment");
+        var likes = $(
+          '<div class="likesdiv" data-project-id="' +
+          item.projectID +
+          '">' +
+          '<img src="./image/likes.png" alt="" class="likes likes3" />' +
+          '<p>Likes: <span class="span-id"></span></p>' +
+          "</div>"
+        );
+        li.append(img).append(name).append(desc).append(likes);
+        if(item.isWinner){
+          var media = $('<img src="./image/medal.png" class="medal" />');
+          li.append(media)
+        }
+        $("#Newestlist").append(li);
+        // 添加点击事件
+        li.click({ projectID: item.projectID }, function (event) {
+          var projectID = event.data.projectID;
+          if (sessionStorage.getItem("role") === "Admin") {
+            window.location.href =
+            "./static/ProjectDetailAdmin.html?projectID=" + projectID;
+          } else {
+            window.location.href =
+            "./static/ProjectDetail.html?projectID=" + projectID;
+          }
+        });
+        // 点赞数
+        var spanElement = $(likes).find(".span-id");
+        $.ajax({
+          url:
+            "https://localhost:8080/api/Projects/likescount/" + item.projectID,
+          type: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 如果请求成功，更新页面
+            // 假设返回值中有一个 count 属性表示点赞数
+            var newValue = data;
+            // 更新 span 元素的值
+            spanElement.text(newValue);
+          },
+          error: function (xhr, status, error) {
+            // 如果请求失败，打印错误信息
+            console.log("请求失败：" + error);
+          },
+        });
+      });
+      $(".likes3").on("click", function (event) {
+        //  拿到当前点赞的元素
+        const _this = $(this).siblings('p').find('span')
+        event.stopPropagation();
+        var projectID = $(this).parent().data("project-id");
+        $.ajax({
+          url: "https://localhost:8080/api/Like/LikeProject/" + projectID,
+          type: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          success: function (data) {
+            // 点赞请求成功重新发送点赞数请求
+            var spanElement = _this;
+            // 获取原来的值
+            var oldValue = spanElement.html();
+            _this.html(parseFloat(parseInt(oldValue) + 1))
+            alert('Like success')
+          },
+          error: function (xhr, status, error) {
+        if (xhr.status === 400) {
+          // Display a message to the user indicating that they have already liked the project
+          alert("You have already Like Projecct");
+        } 
+        else if(xhr.status === 401){
+          alert("Please Log In");
+          window.location.href = "./static/login.html"
+        }
+        else {
+          console.log(error);
+        }
+      },
+        });
+      });
+    },
+    error: function (xhr, status, error) {
+      console.log("请求失败");
+    },
+  });
+
+
+  // banner => Project
+  const girl = document.querySelector('.btnGirl')
+  girl.addEventListener('click', function () {
+    location.href = './static/Project.html'
+  })
+
+
+
+</script>

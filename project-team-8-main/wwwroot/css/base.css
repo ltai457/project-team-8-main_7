@@ -1,0 +1,212 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* em 和 i  斜体的文字不倾斜 */
+em,
+i {
+  font-style: normal
+}
+
+/* 去掉 li的小圆点 */
+li {
+  list-style: none
+}
+
+img {
+  /* border: 0;照顾低版本游览器 如果图片外面包含了链接会有边框的问题 */
+  border: 0;
+  /* 取消图片底侧有空白缝隙的问题 */
+  vertical-align: middle
+}
+
+button {
+  /* 当鼠标经过 button 按钮的时候 鼠标变成小手 */
+  cursor: pointer
+}
+
+a {
+  text-decoration: none
+}
+
+/* a:hover {
+  color: #c81623
+} */
+
+button,
+input {
+  /* "\5B8B\4F53" 就是宋体的意思 这样游览器兼容性比较好 */
+  font-family: Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
+  /* 默认有灰色边框 我们需要手动去掉 */
+  border: 0;
+  /* 取掉蓝色边框 */
+  outline: none;
+}
+
+body {
+  /* CSS3 抗锯齿性 让文字显式的更加清晰 */
+  -webkit-font-smoothing: antialiased;
+  background-color: #fff;
+  font: 12px/1.5 Inter Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
+}
+
+.hide,
+.none {
+  display: none;
+}
+
+/* common.css */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  height: 80px;
+  background-color: #e4e4e4;
+  z-index: 999;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav a {
+  margin-right: 2.6042vw;
+  font-size: 20px;
+  color: #000;
+  background: linear-gradient(270deg, #6F7BE9 33.48%, #6F3198 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  cursor: pointer;
+}
+
+.logo {
+  position: absolute;
+  top: 3px;
+  left: 2.6042vw;
+  width: 91px;
+  height: 72px;
+}
+
+
+
+footer {
+  width: 100%;
+  height: 10.4167vw;
+  background-color: #5F5757;
+  font-size: 1.25vw;
+  color: #fff;
+}
+
+footer p {
+  line-height: 10.4167vw;
+  text-align: center;
+}
+
+.Login {
+  /* display: none; */
+  position: absolute;
+  right: 2.6042vw;
+  cursor: pointer;
+}
+
+.Administer {
+  display: none;
+  position: absolute;
+  right: 2.6042vw;
+}
+
+
+.userImg {
+  display: none;
+  position: absolute;
+  right: 2.6042vw;
+  cursor: pointer;
+}
+
+
+.nav .active {
+  color: #fff;
+}
+
+.userImg img {
+  margin-right: 1.0417vw;
+  width: 53px;
+  height: 53px;
+}
+
+.logout {
+  position: absolute;
+  /* top: 30px; */
+  right: 2.6042vw;
+}
+
+#profileadmin{
+  position: absolute;
+  right: 2.6042vw;
+  cursor: pointer;
+}
+#profileadmin img {
+  margin-right: 1.0417vw;
+  width: 53px;
+  height: 53px;
+}
+
+
+@media screen and (max-width: 750px) {
+
+  /* 在此处添加样式规则 */
+  header {
+    height: 44px;
+  }
+
+  .nav {
+    margin-left: -50px;
+    display: flex;
+    width: 260px;
+    justify-content: space-around;
+  }
+
+  .logo {
+    top: 5px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .userImg {
+    right: 0px;
+  }
+
+  .userImg img {
+    margin-right: 0;
+    width: 30px;
+    height: 30px;
+  }
+
+  #profileadmin {
+    right: 0px;
+  }
+
+  #profileadmin img {
+    margin-right: 0;
+    width: 30px;
+    height: 30px;
+  }
+
+  .nav a {
+    font-size: 12px;
+  }
+
+  .logout {
+    top: 44px;
+  }
+
+
+}

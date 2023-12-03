@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/profile-visitor.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt="" /></a>
+      <a href="Project.html">Project</a>
+      <a href="AboutUs.html">About us</a>
+
+      <a class="userImg" href="../static/Profile.html">
+        <img src="../image/Avatar.png" alt="" />
+        <span>My Profile</span>
+      </a>
+      <a id="profileadmin" href="../static/Upload.html">
+        <span>Add Project</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="baseinfo">
+    <img src="../image/AvatarBig.png" alt="" />
+    <div class="username">Username</div>
+    <div class="role"></div>
+    <div class="logout">Logout</div>
+    <div class="submit">
+      <div class="submit-item">
+        <label for="Interest">Interest</label>
+        <input class="Interest" value="" class="Interest" type="text" >
+      </div>
+      <div class="submit-item">
+        <label for="Skills">Coding language</label>
+        <input class="Skills" value="" class="Skills" type="text" >
+      </div>
+
+    </div>
+    <button class="edit" onclick="edit()">Edit Profile</button>
+    <button class="save" onclick="save()">Save Profile</button>
+
+
+  </div>
+</body>
+
+</html>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/common.js"></script>
+<script>
+  // userName
+  const userName = sessionStorage.getItem('userName');
+  const token = sessionStorage.getItem("token");
+  const role = sessionStorage.getItem("role");
+  $('.username').html(userName)
+  $('.role').html(role)
+  // 绑定退出登录按钮点击事件
+  $(".logout").click(function () {
+    // 清空 sessionStorage，显示登录表单
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userID");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("role");
+    location.href = "../homePage.html";
+  });
+
+
+  getData()
+  function getData() {
+    $.ajax({
+      url: 'https://localhost:8080/api/Profile',
+      type: "get",
+      dataType: "json",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      success(data) {
+        // console.log(data[data.length -1]);
+        const {  interest, mainCoding_Language} = data[data.length - 1]
+       
+        $(".Interest").val(interest)
+        $(".Skills").val(mainCoding_Language)
+        
+      }
+    })
+  }
+
+  function edit() {
+    $('input').each(function () {
+      $(this).css('background-color', 'rgb(195 195 195)');
+      $(this).prop('disabled', !$(this).prop('disabled'));
+    });
+  }
+
+
+  function save() {
+    
+    const Interest = $(".Interest").val();
+    const Skills = $(".Skills").val();
+    
+    const data = {
+     
+      interest: Interest,
+      mainCoding_Language: Skills,
+      
+    }
+
+    $.ajax({
+      url: 'https://localhost:8080/api/Profile',
+      type: "post",
+      data: JSON.stringify(data),
+      dataType: "json",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      success(data) {
+        // console.log(data);
+        const {  interest, mainCoding_Language } = data
+       
+        $(".Interest").val(interest)
+        $(".Skills").val(mainCoding_Language)
+       
+        edit()
+        $('input').each(function () {
+          $(this).css('background-color', '#fff');
+          $(this).css('color', '#000');
+        });
+      }
+    })
+
+
+  }
+
+
+
+
+</script>

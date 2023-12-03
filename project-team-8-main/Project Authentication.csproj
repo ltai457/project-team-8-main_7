@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Project_Authentication</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.60.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.13" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.1" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\Projects\0.png" />
+    <None Include="wwwroot\img\Projects\1.png" />
+    <None Include="wwwroot\img\Projects\13.png" />
+    <None Include="wwwroot\img\Projects\14.png" />
+    <None Include="wwwroot\img\Projects\2.png" />
+    <None Include="wwwroot\img\Projects\3.png" />
+    <None Include="wwwroot\img\Projects\4.png" />
+    <None Include="wwwroot\img\Projects\44.png" />
+    <None Include="wwwroot\img\Projects\45.png" />
+    <None Include="wwwroot\img\Projects\5.png" />
+    <None Include="wwwroot\img\Projects\6.png" />
+    <None Include="wwwroot\img\Projects\7.png" />
+    <None Include="wwwroot\img\Projects\8.png" />
+    <None Include="wwwroot\img\Projects\9.png" />
+    <None Include="wwwroot\img\Projects\default.png" />
+  </ItemGroup>
+
+</Project>

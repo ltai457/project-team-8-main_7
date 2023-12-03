@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectDetailAdminForWaitingApproval</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/projectDetail.css" />
+  <link rel="stylesheet" href="../css/projectDetailAdmin.css" />
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/common.js"></script>
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <a href="../homePage.html"><img class="logo" src="../image/logo.png" alt="" /></a>
+      <a href="Project.html" class="active">Project</a>
+      <a href="AboutUs.html">About us</a>
+      <a class="Login" href="login.html">Login</a>
+
+      <a class="Administer" href="Upload.html">Add Project</a>
+      <a class="userImg">
+        <img src="../image/Avatar.png" alt="" />
+        <span>My Profile</span>
+      </a>
+    </ul>
+  </header>
+
+  <div class="main">
+
+    <div class="detail">
+      <div class="info">
+        <img id="my-video" />
+        <div class="links" style="justify-content: space-evenly;">
+          <a href="#" id="youtube-link">
+            <img src="../image/detail/Youtube.png" alt="" />
+          </a>
+          <a href="#" id="github-link">
+            <img src="../image/detail/GitHub.png" alt="" />
+          </a>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="item">
+          <span>Project Name</span>
+          <div class="project-name"></div>
+        </div>
+        <div class="item">
+          <span>TeamName</span>
+          <div id="Name" class="Name"></div>
+        </div>
+        <div class="item">
+          <span>TeamNumber</span>
+          <div class="team-number" type="text"></div>
+        </div>
+
+        <div class="item">
+          <span>Semester</span>
+          <div class="semester"></div>
+        </div>
+        <div class="item">
+          <span>Team Member</span>
+          <div id="member" class="member"></div>
+        </div>
+        <div class="item">
+          <span>Coding Language</span>
+          <div class="coding-language"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="instruction">
+    <h3>Instruction</h3>
+    <div class="contentInstruction"></div>
+  </div>
+
+
+
+
+  <div class="button-container">
+    <button class="approve-button" type="button">Approve</button>
+    <button class="edit" onclick="Edit()">Edit</button>
+    <button class="save" onclick="Save()">Save</button>
+    <button class="decline-button" type="button">Decline</button>
+  </div>
+
+  
+
+
+
+
+</body>
+
+</html>
+
+<script>
+  // 获取URL中的参数值
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  // 获取projectID参数的值
+  var projectID = getParameterByName("projectID");
+  var token = sessionStorage.getItem("token");
+  var userID = sessionStorage.getItem("userID");
+  var userName = sessionStorage.getItem("userName");
+  // 发请求通过id获取数据
+  $.ajax({
+    url: "https://localhost:8080/api/Projects/Project" + projectID,
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      // 请求成功，获取到项目数据
+      // 赋值给input
+      var videoSrc = data.linktoYoutube;
+      var projectName = data.projectName;
+      var semester = data.semester;
+      var member = data.teamMember;
+      var codingLanguage = data.languageUsed;
+      var content = data.projectOverView;
+      var name = data.teamName;
+      var Teamnum = data.teamNumber;
+      $(".Name").html(name)
+      $(".team-number").html(Teamnum);
+      $(".project-name").html(projectName);
+      $(".semester").html(semester);
+      $(".member").html(member);
+      $(".coding-language").html(codingLanguage);
+      $(".contentInstruction").html(content);
+      $("#my-video").attr(
+        "src",
+        "https://localhost:8080/api/Projects/GetProjectImage/" + projectID
+      );
+
+      // links
+      $("#youtube-link").attr("href", data.linktoYoutube);
+      $("#github-link").attr("href", data.linktoGit);
+      $("#youtube-link").click(function (e) {
+        e.preventDefault();
+        if (data.linktoYoutube !== "") {
+          window.open(data.linktoYoutube, "_blank");
+        } else {
+          alert("Unpublished");
+        }
+      });
+      $("#github-link").click(function (e) {
+        e.preventDefault();
+        if (data.linktoGit !== "") {
+          window.open(data.linktoGit, "_blank");
+        } else {
+          alert("Unpublished");
+        }
+      });
+    },
+    error: function (xhr, status, error) {
+      // 请求失败
+      console.log("error");
+    },
+  });
+
+  // Attach event handler to the approve button
+  $('.approve-button').on('click', function () {
+    Approve(projectID);
+  });
+
+  // Attach event handler to the decline button
+  $('.decline-button').on('click', function () {
+    Decline(projectID);
+  });
+
+  function Approve(projectID) {
+    console.log(projectID);
+    const url = `https://localhost:8080/api/Projects/${projectID}/approve`;
+
+    $.ajax({
+      url: url,
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      success: function (response) {
+        // Handle success
+        window.location.href = 'ProfileAdmin.html';
+      },
+      error: function (xhr, status, error) {
+        console.error('Failed to approve project:', error);
+      }
+    });
+  }
+
+  function Decline(projectID) {
+    console.log(projectID);
+    const url = `https://localhost:8080/api/Projects/${projectID}/decline`;
+
+    $.ajax({
+      url: url,
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      success: function (response) {
+        // Handle success
+        window.location.href = 'ProfileAdmin.html';
+      },
+      error: function (xhr, status, error) {
+        console.error('Failed to decline project:', error);
+      }
+    });
+  }
+
+  function Edit() {
+      $(".item div").each(function () {
+        $(this).attr("contenteditable", "true");
+      });
+      $(".contentInstruction").attr("contenteditable", "true");
+    }
+
+    // save
+    function Save() {
+      var divValues = [];
+      $('.item div[contenteditable="true"]').each(function () {
+        var divValue = $(this).text();
+        divValues.push(divValue);
+      });
+      divValues.push($(".contentInstruction").text());
+      var data = {
+        teamName: divValues[1],
+        teamNumber: parseInt(divValues[2]),
+        teamMember: divValues[4],
+        projectName: divValues[0],
+        projectOverView: divValues[6],
+        languageUsed: divValues[5],
+        semester: divValues[3],
+      };
+      $.ajax({
+        url:
+          "https://localhost:8080/api/Projects/UpdateProjectBy/" + projectID,
+        type: "PUT",
+        data: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        success: function (response) {
+          alert("Successfully save!");
+          console.log("PUT请求成功", response);
+        },
+        error: function (xhr, status, error) {
+          console.log("PUT请求失败", error);
+        },
+      });
+    }
+</script>
