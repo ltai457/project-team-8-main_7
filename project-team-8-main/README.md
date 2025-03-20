@@ -31,28 +31,18 @@ If you want to access our backend code https://localhost:8080/swagger/index.html
 
 ## Usage Examples
 ## Non-login
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/93a62d1e-3b02-4cff-8287-7e1966d440b7)
-
 - If you don't have an account yet, feel free to play around the website, you can view project, see comments and number of like of each project 
 ## -Visitor
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/6d2dec00-a486-4957-ab3c-4459adc697c6)
 - you could like the project and comment, but unfortunately, visitors are not allowed to do anything further than this.
 - You can register an account by clicking the Login/Sign up button on the upper right corner of the website. We are allowed sign up with Google account.
 - If you've already had an account, then you could leave comments under videos. 
 ## -Student
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/2bce89bb-c0d8-4cc5-bb79-96ca0c6332dc)
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/5356d3e9-8c32-4ad8-b0ef-4339ef7497a5)
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/2cd7ad10-8ae2-4db0-815d-8966b614d0fe)
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/ac8b6855-3b96-4e73-9199-ff2a33484b66)
-
 - Sign up first to gain access to the main function for students.
 - After signing up for an account and logging in, the upper right corner will show the entrance for your profile page. Students could click and access it to do further steps such as uploading their project.
 - When Student successfully upload project, it need to get an approval from admin before it can published 
 - Now as you've already had an account, you could share the same rights as logged in visitors, feel free to like or comment on the project.
 ## -Admin
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/44418525-6943-4cb3-b9f7-e48f96be0613)
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/fef891c9-21a3-4ad6-bfaf-c97b68da310b)
-![image](https://github.com/uoa-compsci399-s1-2023/project-team-8/assets/114079256/f4fc13ca-00ab-4903-83a8-35e3c803efb6)
+
 here Admin account: admin@gmail.com password:admin123456 
 - Log in with pre-specified account and then could process students' request of uploading the project demos. Admin staff could choose either to publish or decline the requests or edit the project if there is any mistake.
 - Admin is allowed to delete comments or existing projects.
